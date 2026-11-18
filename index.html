@@ -13,6 +13,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
 /* ══════════════════ TOKENS ══════════════════ */
 :root{
@@ -54,8 +57,6 @@ button{font-family:inherit}
 .login-card label{display:block;font:600 12px 'Sora';color:var(--petrol-700);margin-bottom:14px}
 .login-err{background:var(--bad-soft);color:var(--bad);border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:14px;display:none}
 .swap-link{margin-top:14px;font-size:12.5px;color:var(--muted)}
-.demo-creds{margin-top:18px;border-top:1px dashed var(--line);padding-top:16px;display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted)}
-.demo-creds b{color:var(--ink)}
 
 /* ══════════════════ COMPONENTES BÁSICOS ══════════════════ */
 .input,.select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;background:#fff;color:var(--ink);transition:border-color .15s,box-shadow .15s}
@@ -237,6 +238,12 @@ table.ustable .select{width:auto;padding:6px 10px;font-size:12.5px}
 .form-grid .fg-full{grid-column:1/-1}
 .form-grid textarea{font:400 13px 'IBM Plex Sans'}
 
+/* QR Code modal */
+.qr-container{display:flex;flex-direction:column;align-items:center;gap:20px;padding:20px}
+.qr-box{background:#fff;padding:20px;border-radius:12px;border:1px solid var(--line)}
+.qr-info{text-align:center;font-size:13px;color:var(--muted);line-height:1.6}
+.qr-info b{color:var(--ink);display:block;font-size:15px;margin-bottom:6px}
+
 /* ══════════════════ TOAST ══════════════════ */
 .toast-wrap{position:fixed;right:22px;bottom:22px;display:flex;flex-direction:column;gap:10px;z-index:95}
 .toast{background:var(--petrol-800);color:#fff;padding:13px 18px;border-radius:12px;box-shadow:var(--shadow);display:flex;gap:11px;align-items:center;max-width:380px;font-size:13.5px;animation:toastIn .3s cubic-bezier(.2,.9,.3,1.2)}
@@ -270,7 +277,7 @@ body:not([data-papel="admin"]) .needs-admin{display:none!important}
     <div class="brand-content">
       <div class="logo-big"><img src="icon.svg" alt=""><span>PATRIMÔNIO<br>MOBILIÁRIO</span></div>
     </div>
-    <div class="brand-foot">Uso interno · v2.0 · 2026</div>
+    <div class="brand-foot">Uso interno · v2.1 · 2026</div>
   </div>
   <div class="login-panel">
     <div class="login-card">
@@ -282,11 +289,6 @@ body:not([data-papel="admin"]) .needs-admin{display:none!important}
         <label>Senha<input type="password" id="loginPass" class="input" required autocomplete="current-password" placeholder="••••••••"></label>
         <button class="btn primary block" type="submit">Entrar no sistema</button>
         <p class="swap-link">Primeiro acesso? <button type="button" class="link" id="goRegister">Criar meu usuário</button></p>
-        <div class="demo-creds">
-          <span><b>Perfis de demonstração</b></span>
-          <span><b>pedro</b> / admin123 — Administrador (edita)</span>
-          <span><b>paolla</b> / consulta123 — Consulta (somente lê)</span>
-        </div>
       </form>
       <form id="registerForm" hidden autocomplete="off">
         <h2>Criar meu acesso</h2>
@@ -351,7 +353,10 @@ body:not([data-papel="admin"]) .needs-admin{display:none!important}
     <section class="view" id="view-bens">
       <div class="view-head row">
         <div><h2>Bens</h2><p id="bensCount"></p></div>
-        <button class="btn primary needs-edit" id="btnNovo">＋ Novo bem</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn ghost" id="btnRelatorioPDF">📄 Relatório PDF</button>
+          <button class="btn primary needs-edit" id="btnNovo">＋ Novo bem</button>
+        </div>
       </div>
       <div class="toolbar card">
         <div class="f-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="fText" class="input" placeholder="Filtrar por código, descrição, pessoa…"></div>
@@ -455,13 +460,12 @@ body:not([data-papel="admin"]) .needs-admin{display:none!important}
 <datalist id="dlItens"></datalist><datalist id="dlSetores"></datalist><datalist id="dlPessoas"></datalist><datalist id="dlMarcas"></datalist>
 
 <script src="config.js"></script>
-<script src="data.js"></script>
 <script>
 /* ═══════════════════════ CONFIG ═══════════════════════ */
 const PAPEL_PADRAO_REGISTRO='consulta';
 const PAPEL_NOME={admin:'Administrador',consulta:'Consulta'};
 
-/* ═══════════════════════ STORAGE LOCAL (cache/offline) ═══════════════════════ */
+/* ═══════════════════════ STORAGE LOCAL ═══════════════════════ */
 const DB = {
   key:'pm_v2', data:null,
   init(){
@@ -469,12 +473,11 @@ const DB = {
     if(!this.data || !Array.isArray(this.data.bens) || !this.data.bens.length){
       this.data = {
         bens: SEED_BENS.map(x=>({...x})),
-        hist: [{data:new Date().toISOString(), usuario:'Sistema', acao:'importacao', descricao:`Base inicial carregada da planilha “Patrimônio Mobiliário.xlsx” (${SEED_BENS.length} bens).`, codigo:null}],
+        hist: [{data:new Date().toISOString(), usuario:'Sistema', acao:'importacao', descricao:`Base inicial carregada da planilha "Patrimônio Mobiliário.xlsx" (${SEED_BENS.length} bens).`, codigo:null}],
         users: SEED_USERS.map(x=>({...x}))
       };
       this.save();
     }
-    // migração: perfil "editor" deixa de existir (edição é exclusiva de admin)
     let migrou=false;
     (this.data.users||[]).forEach(u=>{ if(u.papel==='editor'){ u.papel='consulta'; migrou=true; } });
     if(migrou) this.save();
@@ -482,7 +485,7 @@ const DB = {
   save(){ localStorage.setItem(this.key, JSON.stringify(this.data)); }
 };
 
-/* ═══════════════════════ SUPABASE (nuvem + tempo real) ═══════════════════════ */
+/* ═══════════════════════ SUPABASE ═══════════════════════ */
 const Cloud = {
   sb:null,
   init(){
@@ -726,6 +729,8 @@ function openDrawer(cod){
     <div class="d-actions">
       ${Auth.can('edit')?`<button class="btn primary sm" onclick="openBemForm(${b.codigo})">✎ Editar</button><button class="btn ghost sm" onclick="openMoveForm(${b.codigo})">⇄ Movimentar</button>`:''}
       ${Auth.can('delete')?`<button class="btn danger sm" onclick="openDelete(${b.codigo})">Excluir</button>`:''}
+      <button class="btn ghost sm" onclick="openQRCode(${b.codigo})">📱 QR Code</button>
+      <button class="btn ghost sm" onclick="downloadBemPDF(${b.codigo})">📄 Ficha PDF</button>
       <button class="btn ghost sm" onclick="window.print()">🖨 Imprimir ficha</button>
     </div>
     <div class="d-hist"><h4>Últimos registros deste bem</h4>
@@ -739,6 +744,182 @@ function closeDrawer(){ $('#drawer').classList.remove('open'); if(!$('#modalWrap
 function openModal(html){ $('#modalCard').innerHTML=html; $('#modalWrap').hidden=false; $('#backdrop').classList.add('on'); requestAnimationFrame(()=>$('#modalWrap').classList.add('on')); }
 function closeModal(){ $('#modalWrap').classList.remove('on'); setTimeout(()=>{$('#modalWrap').hidden=true;},180); if(!$('#drawer').classList.contains('open')) $('#backdrop').classList.remove('on'); }
 
+/* ═══════════════════════ QR CODE ═══════════════════════ */
+function openQRCode(cod){
+  const b=DB.data.bens.find(x=>x.codigo===cod); if(!b) return;
+  const url=`${window.location.origin}${window.location.pathname}?bem=${cod}`;
+  openModal(`
+  <div class="modal-h"><h3>QR Code — Bem ${b.codigo}</h3><button class="x" onclick="closeModal()">✕</button></div>
+  <div class="modal-b">
+    <div class="qr-container">
+      <div class="qr-box"><div id="qrCode"></div></div>
+      <div class="qr-info">
+        <b>${esc(b.item)} — Código ${b.codigo}</b>
+        Escaneie com o celular para abrir esta ficha<br>
+        <span style="font-size:11px;color:var(--muted);word-break:break-all">${url}</span>
+      </div>
+      <button class="btn primary" onclick="printQRCode(${b.codigo})">🖨 Imprimir etiqueta</button>
+    </div>
+  </div>`);
+  setTimeout(()=>{
+    if(typeof QRCode!=='undefined'){
+      new QRCode(document.getElementById('qrCode'),{
+        text:url,
+        width:200,
+        height:200,
+        colorDark:'#0b3844',
+        colorLight:'#ffffff',
+        correctLevel:QRCode.CorrectLevel.M
+      });
+    }
+  },100);
+}
+function printQRCode(cod){
+  const b=DB.data.bens.find(x=>x.codigo===cod); if(!b) return;
+  const url=`${window.location.origin}${window.location.pathname}?bem=${cod}`;
+  const w=window.open('','_blank','width=400,height=500');
+  w.document.write(`<!DOCTYPE html><html><head><title>Etiqueta ${b.codigo}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:20px}.qr{margin:20px auto}h2{margin:10px 0}p{margin:5px 0;font-size:14px}</style></head><body><h2>${esc(b.item)}</h2><p><b>Código: ${b.codigo}</b></p><div class="qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}" alt="QR Code"></div><p style="font-size:11px;color:#666">Escaneie para ver a ficha completa</p><script>window.print()<\/script></body></html>`);
+  w.document.close();
+}
+
+/* ═══════════════════════ PDF INDIVIDUAL ═══════════════════════ */
+function downloadBemPDF(cod){
+  const b=DB.data.bens.find(x=>x.codigo===cod); if(!b) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const st=statusOf(b);
+  
+  // Cabeçalho
+  doc.setFillColor(11,56,68);
+  doc.rect(0,0,210,25,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(18);
+  doc.text('PATRIMÔNIO MOBILIÁRIO',105,12,{align:'center'});
+  doc.setFontSize(10);
+  doc.text('Ficha Individual do Bem',105,19,{align:'center'});
+  
+  // Código
+  doc.setTextColor(0,0,0);
+  doc.setFontSize(14);
+  doc.text(`Código: ${b.codigo}`,14,35);
+  doc.setFontSize(12);
+  doc.text(`Status: ${st.t}`,14,42);
+  
+  // Dados
+  doc.setFontSize(11);
+  let y=55;
+  const fields=[
+    ['Item:',b.item],
+    ['Marca:',b.marca||'—'],
+    ['Cor:',b.cor||'—'],
+    ['Data de aquisição:',fmtDate(b.data)],
+    ['Valor:',money(b.valor)],
+    ['Responsável:',b.responsavel||'—'],
+    ['Setor / Núcleo:',b.setor||'—'],
+    ['Quem está utilizando:',b.usuario||'—'],
+    ['Local:',b.local||'—']
+  ];
+  fields.forEach(([label,val])=>{
+    doc.setFont(undefined,'bold');
+    doc.text(label,14,y);
+    doc.setFont(undefined,'normal');
+    doc.text(val,60,y);
+    y+=8;
+  });
+  
+  // Detalhes
+  if(b.detalhes){
+    y+=5;
+    doc.setFont(undefined,'bold');
+    doc.text('Detalhes:',14,y);
+    y+=6;
+    doc.setFont(undefined,'normal');
+    const splitDetalhes=doc.splitTextToSize(b.detalhes,180);
+    doc.text(splitDetalhes,14,y);
+    y+=splitDetalhes.length*5+5;
+  }
+  
+  // Observações
+  if(b.obs){
+    doc.setFont(undefined,'bold');
+    doc.text('Observações:',14,y);
+    y+=6;
+    doc.setFont(undefined,'normal');
+    const splitObs=doc.splitTextToSize(b.obs,180);
+    doc.text(splitObs,14,y);
+  }
+  
+  // Rodapé
+  doc.setFontSize(8);
+  doc.setTextColor(128,128,128);
+  doc.text(`Gerado em ${new Date().toLocaleString('pt-BR')} · Patrimônio Mobiliário DMAE`,105,290,{align:'center'});
+  
+  doc.save(`bem-${b.codigo}-${b.item.replace(/\s+/g,'-').toLowerCase()}.pdf`);
+  toast('Ficha PDF gerada com sucesso.');
+}
+
+/* ═══════════════════════ RELATÓRIO PDF ═══════════════════════ */
+function downloadRelatorioPDF(){
+  const list=filteredBens();
+  if(!list.length){ toast('Nenhum bem para gerar relatório.','err'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('landscape');
+  
+  // Cabeçalho
+  doc.setFillColor(11,56,68);
+  doc.rect(0,0,297,20,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(16);
+  doc.text('PATRIMÔNIO MOBILIÁRIO — Relatório de Bens',148.5,10,{align:'center'});
+  doc.setFontSize(9);
+  doc.text(`Gerado em ${new Date().toLocaleString('pt-BR')} · ${list.length} bens`,148.5,16,{align:'center'});
+  
+  // Tabela
+  const headers=[['Código','Item','Marca','Setor','Usuário','Local','Valor','Status']];
+  const data=list.map(b=>{
+    const st=statusOf(b);
+    return [
+      b.codigo,
+      b.item,
+      b.marca||'—',
+      b.setor||'—',
+      b.usuario||'—',
+      (b.local||'—').substring(0,40),
+      money(b.valor),
+      st.t
+    ];
+  });
+  
+  doc.autoTable({
+    head:headers,
+    body:data,
+    startY:25,
+    styles:{fontSize:8,cellPadding:2},
+    headStyles:{fillColor:[14,138,158],textColor:255,fontStyle:'bold'},
+    alternateRowStyles:{fillColor:[238,242,244]},
+    columnStyles:{
+      0:{cellWidth:20},
+      1:{cellWidth:40},
+      2:{cellWidth:30},
+      3:{cellWidth:35},
+      4:{cellWidth:35},
+      5:{cellWidth:60},
+      6:{cellWidth:30,halign:'right'},
+      7:{cellWidth:25}
+    }
+  });
+  
+  // Rodapé
+  const finalY=doc.lastAutoTable.finalY+10;
+  doc.setFontSize(8);
+  doc.setTextColor(128,128,128);
+  doc.text(`Total de bens: ${list.length} · Valor total: ${money(list.reduce((s,b)=>s+(b.valor||0),0))}`,14,finalY);
+  
+  doc.save(`relatorio-bens-${new Date().toISOString().slice(0,10)}.pdf`);
+  toast('Relatório PDF gerado com sucesso.');
+}
+
+/* ═══════════════════════ FORMULÁRIOS DE BEM ═══════════════════════ */
 function openBemForm(cod){
   if(!Auth.can('edit')) return;
   const b = cod? DB.data.bens.find(x=>x.codigo===cod) : null;
@@ -973,6 +1154,7 @@ function initEvents(){
     if(t==='pend'){ grid.setor=''; grid.status='pend'; }
     syncFilterInputs(); goto('bens');
   }));
+  $('#btnRelatorioPDF').onclick=downloadRelatorioPDF;
   $('#globalSearch').addEventListener('input',e=>{ grid.text=e.target.value; grid.page=1; goto('bens'); });
   $('#fText').addEventListener('input',e=>{ grid.text=e.target.value; grid.page=1; renderBens(); });
   $('#fSetor').onchange=e=>{ grid.setor=e.target.value; grid.page=1; renderBens(); };
@@ -1043,6 +1225,12 @@ DB.init(); Cloud.init();
     }
     Auth.init(); initEvents();
     if(Auth.user) enterApp();
+    // Auto-abrir bem via URL (?bem=1234)
+    const params=new URLSearchParams(window.location.search);
+    const bemCod=params.get('bem');
+    if(bemCod && Auth.user){
+      setTimeout(()=>openDrawer(parseInt(bemCod,10)),500);
+    }
   })();
 })();
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){ addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }

@@ -528,17 +528,25 @@ function logHist(acao,descricao,codigo=null){
 
 function mergeHist(cloudRows){
   const cloud=cloudRows.map(normHist);
-  const keys=new Set(cloud.map(x=>x.data+'|'+x.descricao));
-  const pend=DB.data.hist.filter(x=>!keys.has(x.data+'|'+x.descricao));
-  // Deduplica: remove registros locais com mesma chave (data+descricao)
-  const seen=new Set();
-  const uniquePend=pend.filter(x=>{
-    const k=x.data+'|'+x.descricao;
-    if(seen.has(k)) return false;
-    seen.add(k);
-    return true;
+  
+  // Para cada registro local, verifica se existe um correspondente no banco
+  // com a mesma descrição e dentro de uma janela de 60 segundos
+  const uniqueLocal=DB.data.hist.filter(local=>{
+    const localTime=new Date(local.data).getTime();
+    // Verifica se já existe no banco com mesma descrição
+    const existsInCloud=cloud.some(cloud=>{
+      const cloudTime=new Date(cloud.data).getTime();
+      const timeDiff=Math.abs(localTime-cloudTime);
+      return cloud.descricao===local.descricao && timeDiff<60000; // 60 segundos
+    });
+    // Mantém apenas se NÃO existe no banco (ou se é muito antigo)
+    return !existsInCloud;
   });
-  DB.data.hist=[...uniquePend,...cloud].sort((a,b)=>new Date(b.data)-new Date(a.data)).slice(0,800);
+  
+  // Combina locais únicos + cloud, ordena e limita
+  DB.data.hist=[...uniqueLocal,...cloud]
+    .sort((a,b)=>new Date(b.data)-new Date(a.data))
+    .slice(0,800);
 }
 
 /* ═══════════════════════ SUPABASE ═══════════════════════ */

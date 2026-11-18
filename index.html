@@ -277,7 +277,7 @@ body:not([data-papel="admin"]) .needs-admin{display:none!important}
     <div class="brand-content">
       <div class="logo-big"><img src="icon.svg" alt=""><span>PATRIMÔNIO<br>MOBILIÁRIO</span></div>
     </div>
-    <div class="brand-foot">Uso interno · v2.1 · 2026</div>
+    <div class="brand-foot">Uso interno · v2.2 · 2026</div>
   </div>
   <div class="login-panel">
     <div class="login-card">
@@ -486,6 +486,37 @@ const DB = {
   save(){ localStorage.setItem(this.key, JSON.stringify(this.data)); }
 };
 
+/* ═══════════════════════ HISTÓRICO (com fila de pendências) ═══════════════════════ */
+const Outbox = {
+  key:'pm_hist_pending',
+  items:[],
+  init(){ try{ this.items=JSON.parse(localStorage.getItem(this.key)||'[]'); }catch(e){ this.items=[]; } },
+  save(){ localStorage.setItem(this.key, JSON.stringify(this.items.slice(-300))); },
+  add(h){ if(!this.items.some(x=>x.data===h.data&&x.descricao===h.descricao)) this.items.push(h); this.save(); },
+  remove(h){ const n=this.items.length; this.items=this.items.filter(x=>!(x.data===h.data&&x.descricao===h.descricao)); if(this.items.length!==n) this.save(); },
+  async flush(){
+    if(!Cloud.on||!this.items.length) return;
+    const batch=[...this.items];
+    const { error } = await Cloud.sb.from('hist').insert(batch.map(h=>({data:h.data,usuario:h.usuario,acao:h.acao,descricao:h.descricao,codigo:h.codigo})));
+    if(!error) batch.forEach(h=>this.remove(h));
+  }
+};
+
+function logHist(acao,descricao,codigo=null){
+  const h={data:new Date().toISOString(), usuario:Auth.user?.nome||'Sistema', acao, descricao, codigo};
+  DB.data.hist.unshift(h);
+  if(DB.data.hist.length>800) DB.data.hist.length=800;
+  DB.save();
+  if(Cloud.on){ Outbox.add(h); Outbox.flush(); }
+}
+
+function mergeHist(cloudRows){
+  const cloud=cloudRows.map(normHist);
+  const keys=new Set(cloud.map(x=>x.data+'|'+x.descricao));
+  const pend=DB.data.hist.filter(x=>!keys.has(x.data+'|'+x.descricao));
+  DB.data.hist=[...pend,...cloud].sort((a,b)=>new Date(b.data)-new Date(a.data)).slice(0,800);
+}
+
 /* ═══════════════════════ SUPABASE ═══════════════════════ */
 const Cloud = {
   sb:null,
@@ -506,7 +537,7 @@ const Cloud = {
     if(b.data && b.data.length){ DB.data.bens=b.data.map(normBem); }
     else { DB.data.bens=SEED_BENS.map(x=>({...x})); await this.sb.from('bens').upsert(DB.data.bens.map(cleanBem)); }
     if(h.error) throw new Error(h.error.message);
-    if(h.data && h.data.length){ DB.data.hist=h.data.map(normHist); }
+    if(h.data && h.data.length){ mergeHist(h.data); }
     else { await this.sb.from('hist').insert(DB.data.hist.map(({data,usuario,acao,descricao,codigo})=>({data,usuario,acao,descricao,codigo}))); }
     if(!u.error && u.data && u.data.length){ DB.data.users=u.data.map(x=>({...x,senha:''})); }
     DB.save();
@@ -532,10 +563,10 @@ async function refreshFromCloud(){
   if(!Cloud.on) return;
   const [b,h]=await Promise.all([
     Cloud.sb.from('bens').select('*'),
-    Cloud.sb.from('hist').select('*').order('data',{ascending:false}).limit(300)
+    Cloud.sb.from('hist').select('*').order('data',{ascending:false}).limit(500)
   ]);
   if(b.data) DB.data.bens=b.data.map(normBem);
-  if(h.data) DB.data.hist=h.data.map(normHist);
+  if(h.data) mergeHist(h.data);
   DB.save(); refreshFilters();
   const v=document.querySelector('.view.active'); if(!v) return;
   if(v.id==='view-dashboard') renderDashboard();
@@ -600,7 +631,6 @@ function normTxt(s){ return String(s||'').toLowerCase().normalize('NFD').replace
 function initials(n){ return n.split(' ').filter(Boolean).map(p=>p[0]).slice(0,2).join('').toUpperCase(); }
 function relTime(iso){ const d=(Date.now()-new Date(iso))/1e3; if(d<60)return 'agora'; if(d<3600)return `há ${Math.floor(d/60)} min`; if(d<86400)return `há ${Math.floor(d/3600)} h`; if(d<86400*30)return `há ${Math.floor(d/86400)} d`; return fmtDate(iso); }
 function toast(msg,type='ok'){ const t=document.createElement('div'); t.className='toast '+(type==='ok'?'':type); t.textContent=msg; $('#toasts').appendChild(t); setTimeout(()=>{t.style.opacity='0'; t.style.transition='opacity .4s'; setTimeout(()=>t.remove(),400);},3800); }
-function logHist(acao,descricao,codigo=null){ const h={data:new Date().toISOString(), usuario:Auth.user?.nome||'Sistema', acao, descricao, codigo}; DB.data.hist.unshift(h); if(DB.data.hist.length>800) DB.data.hist.length=800; DB.save(); Cloud.insertHist(h); }
 function statusOf(b){ if(/baixa/i.test(`${b.usuario} ${b.local}`)) return {k:'low',t:'Baixa'}; if(b.encontrado===true) return {k:'ok',t:'Localizado'}; if(b.encontrado===false) return {k:'bad',t:'Não localizado'}; return {k:'off',t:'Sem registro'}; }
 const ACT = { cadastro:['＋','#e2f3f6','#0e8a9e'], edicao:['✎','#e5f0fa','#1778b8'], movimentacao:['⇄','#fdf3e2','#c07f1d'], exclusao:['✕','#fbeae6','#c8442e'], importacao:['⭳','#e8edf0','#0b3844'], sistema:['⚙','#e8edf0','#0b3844'] };
 
@@ -691,7 +721,7 @@ function renderBens(){
   const pages=Math.max(1,Math.ceil(list.length/PAGE));
   grid.page=Math.min(Math.max(1,grid.page),pages);
   const slice=list.slice((grid.page-1)*PAGE, grid.page*PAGE);
-  $('#bensCount').textContent=`${list.length} bem${list.length!==1?'s':''} encontrado${list.length!==1?'s':''}`;
+  $('#bensCount').textContent=`${list.length} bens encontrado${list.length!==1?'s':''}`;
   $('#tbBens').innerHTML = slice.length? slice.map(b=>{ const st=statusOf(b);
     return `<tr onclick="openDrawer(${b.codigo})">
       <td class="mono">${b.codigo}</td>
@@ -790,7 +820,6 @@ function downloadBemPDF(cod){
   const doc = new jsPDF();
   const st=statusOf(b);
   
-  // Cabeçalho
   doc.setFillColor(11,56,68);
   doc.rect(0,0,210,25,'F');
   doc.setTextColor(255,255,255);
@@ -799,14 +828,12 @@ function downloadBemPDF(cod){
   doc.setFontSize(10);
   doc.text('Ficha Individual do Bem',105,19,{align:'center'});
   
-  // Código
   doc.setTextColor(0,0,0);
   doc.setFontSize(14);
   doc.text(`Código: ${b.codigo}`,14,35);
   doc.setFontSize(12);
   doc.text(`Status: ${st.t}`,14,42);
   
-  // Dados
   doc.setFontSize(11);
   let y=55;
   const fields=[
@@ -828,7 +855,6 @@ function downloadBemPDF(cod){
     y+=8;
   });
   
-  // Detalhes
   if(b.detalhes){
     y+=5;
     doc.setFont(undefined,'bold');
@@ -840,7 +866,6 @@ function downloadBemPDF(cod){
     y+=splitDetalhes.length*5+5;
   }
   
-  // Observações
   if(b.obs){
     doc.setFont(undefined,'bold');
     doc.text('Observações:',14,y);
@@ -850,7 +875,6 @@ function downloadBemPDF(cod){
     doc.text(splitObs,14,y);
   }
   
-  // Rodapé
   doc.setFontSize(8);
   doc.setTextColor(128,128,128);
   doc.text(`Gerado em ${new Date().toLocaleString('pt-BR')} · Patrimônio Mobiliário DMAE`,105,290,{align:'center'});
@@ -866,7 +890,6 @@ function downloadRelatorioPDF(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF('landscape');
   
-  // Cabeçalho
   doc.setFillColor(11,56,68);
   doc.rect(0,0,297,20,'F');
   doc.setTextColor(255,255,255);
@@ -875,7 +898,6 @@ function downloadRelatorioPDF(){
   doc.setFontSize(9);
   doc.text(`Gerado em ${new Date().toLocaleString('pt-BR')} · ${list.length} bens`,148.5,16,{align:'center'});
   
-  // Tabela
   const headers=[['Código','Item','Marca','Setor','Usuário','Local','Valor','Status']];
   const data=list.map(b=>{
     const st=statusOf(b);
@@ -910,7 +932,6 @@ function downloadRelatorioPDF(){
     }
   });
   
-  // Rodapé
   const finalY=doc.lastAutoTable.finalY+10;
   doc.setFontSize(8);
   doc.setTextColor(128,128,128);
@@ -992,7 +1013,6 @@ function openDelete(cod){
   <div class="modal-b"><p style="font-size:14px;line-height:1.6">Confirma a exclusão definitiva do bem <b class="mono">${b.codigo} — ${esc(b.item)}</b>${b.setor?` (${esc(b.setor)})`:''}?<br><span class="muted" style="font-size:12.5px">Esta ação não pode ser desfeita.</span></p></div>
   <div class="modal-f"><button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn danger" id="btnConfirmDel">Excluir definitivamente</button></div>`);
   $('#btnConfirmDel').onclick=async()=>{
-    // 1. Remove localmente primeiro (para feedback imediato)
     DB.data.bens=DB.data.bens.filter(x=>x.codigo!==cod);
     DB.save();
     closeModal();
@@ -1001,11 +1021,9 @@ function openDelete(cod){
     renderBens();
     renderDashboard();
     
-    // 2. Tenta excluir no Supabase
     if(Cloud.on){
       const { error } = await Cloud.sb.from('bens').delete().eq('codigo', cod);
       if(error){
-        // Se falhou no banco, reverte a exclusão local
         DB.data.bens.push(b);
         DB.save();
         refreshFilters();
@@ -1017,7 +1035,6 @@ function openDelete(cod){
       }
     }
     
-    // 3. Registra no histórico
     logHist('exclusao',`Bem ${cod} (${b.item}) foi excluído do acervo.`,cod);
     toast('Bem excluído com sucesso.','warn');
   };
@@ -1251,11 +1268,12 @@ DB.init(); Cloud.init();
     if(Cloud.on){
       try{ await Cloud.loadAll(); }
       catch(e){ console.error(e); toast('Não foi possível carregar a base da nuvem ('+e.message+'). Usando base local.','err'); }
+      Outbox.init(); Outbox.flush();
+      setInterval(()=>Outbox.flush(), 20000);
       Cloud.subscribe();
     }
     Auth.init(); initEvents();
     if(Auth.user) enterApp();
-    // Auto-abrir bem via URL (?bem=1234)
     const params=new URLSearchParams(window.location.search);
     const bemCod=params.get('bem');
     if(bemCod && Auth.user){

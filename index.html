@@ -530,7 +530,15 @@ function mergeHist(cloudRows){
   const cloud=cloudRows.map(normHist);
   const keys=new Set(cloud.map(x=>x.data+'|'+x.descricao));
   const pend=DB.data.hist.filter(x=>!keys.has(x.data+'|'+x.descricao));
-  DB.data.hist=[...pend,...cloud].sort((a,b)=>new Date(b.data)-new Date(a.data)).slice(0,800);
+  // Deduplica: remove registros locais com mesma chave (data+descricao)
+  const seen=new Set();
+  const uniquePend=pend.filter(x=>{
+    const k=x.data+'|'+x.descricao;
+    if(seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+  DB.data.hist=[...uniquePend,...cloud].sort((a,b)=>new Date(b.data)-new Date(a.data)).slice(0,800);
 }
 
 /* ═══════════════════════ SUPABASE ═══════════════════════ */

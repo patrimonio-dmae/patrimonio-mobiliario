@@ -34,7 +34,7 @@ h1,h2,h3,h4{font-family:'Sora',sans-serif}
 button{font-family:inherit}
 ::selection{background:rgba(14,138,158,.25)}
 
-/* ══════════════════ LOGIN (capa limpa v1.2) ══════════════════ */
+/* ══════════════════ LOGIN ══════════════════ */
 .login-wrap{min-height:100vh;display:grid;grid-template-columns:1.15fr 1fr}
 .login-brand{position:relative;overflow:hidden;background:linear-gradient(160deg,var(--petrol-800),var(--petrol-900) 70%);color:#e8f3f6;display:flex;flex-direction:column;justify-content:center;padding:52px}
 .login-brand::before{content:"";position:absolute;inset:-40%;background:radial-gradient(circle at 70% 20%,rgba(23,120,184,.35),transparent 45%),radial-gradient(circle at 20% 85%,rgba(14,138,158,.3),transparent 40%);animation:breathe 9s ease-in-out infinite alternate}
@@ -52,7 +52,8 @@ button{font-family:inherit}
 .login-card .muted{color:var(--muted);margin:6px 0 24px;font-size:13.5px}
 .login-card label{display:block;font:600 12px 'Sora';color:var(--petrol-700);margin-bottom:14px}
 .login-err{background:var(--bad-soft);color:var(--bad);border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:14px;display:none}
-.demo-creds{margin-top:24px;border-top:1px dashed var(--line);padding-top:16px;display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted)}
+.swap-link{margin-top:14px;font-size:12.5px;color:var(--muted)}
+.demo-creds{margin-top:18px;border-top:1px dashed var(--line);padding-top:16px;display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted)}
 .demo-creds b{color:var(--ink)}
 
 /* ══════════════════ COMPONENTES BÁSICOS ══════════════════ */
@@ -119,8 +120,9 @@ main{padding:26px 32px 48px;min-width:0}
 
 /* dashboard */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;gap:15px;align-items:center;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;gap:15px;align-items:center;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s;cursor:pointer}
 .kpi:hover{transform:translateY(-3px);box-shadow:0 14px 30px -14px rgba(13,42,51,.3)}
+.kpi:active{transform:translateY(-1px) scale(.995)}
 .kpi-ico{width:48px;height:48px;border-radius:13px;display:grid;place-items:center;flex:none}
 .kpi-ico svg{width:23px;height:23px}
 .kpi b{display:block;font:800 24px/1.15 'Sora';letter-spacing:-.01em}
@@ -141,6 +143,9 @@ main{padding:26px 32px 48px;min-width:0}
 .tl-ico{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;flex:none;font-size:14px}
 .recent-item p{flex:1;color:var(--ink)}
 .recent-item small{color:var(--muted);display:block;font-size:11.5px;margin-top:2px}
+.setor-row{display:flex;justify-content:space-between;gap:12px;padding:11px 6px;border-bottom:1px dashed var(--line);cursor:pointer;font-size:13.5px;transition:background .12s}
+.setor-row:hover{background:#f5f9fa}
+.setor-row:last-child{border-bottom:0}
 
 /* bens — toolbar + tabela */
 .toolbar{display:flex;gap:10px;padding:14px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
@@ -256,29 +261,43 @@ body:not([data-papel="admin"]) .needs-admin{display:none!important}
 </head>
 <body>
 
-<!-- ════════════════════════ LOGIN (bloco único) ════════════════════════ -->
+<!-- ════════════════════════ LOGIN ════════════════════════ -->
 <div class="login-wrap" id="loginScreen">
   <div class="login-brand">
     <div class="brand-content">
       <div class="logo-big"><img src="icon.svg" alt=""><span>PATRIMÔNIO<br>MOBILIÁRIO</span></div>
     </div>
-    <div class="brand-foot">Uso interno · v1.2 · 2026</div>
+    <div class="brand-foot">Uso interno · v1.3 · 2026</div>
   </div>
   <div class="login-panel">
-    <form class="login-card" id="loginForm" autocomplete="on">
-      <h2>Entrar</h2>
-      <p class="muted">Acesse com suas credenciais de equipe.</p>
-      <div class="login-err" id="loginErr">Usuário ou senha inválidos. Tente novamente.</div>
-      <label>Usuário<input id="loginUser" class="input" required autocomplete="username" placeholder="seu.login"></label>
-      <label>Senha<input type="password" id="loginPass" class="input" required autocomplete="current-password" placeholder="••••••••"></label>
-      <button class="btn primary block" type="submit">Entrar no sistema</button>
-      <div class="demo-creds">
-        <span><b>Perfis de demonstração</b></span>
-        <span><b>pedro</b> / admin123 — Administrador</span>
-        <span><b>nicholas</b> / editor123 — Editor</span>
-        <span><b>paolla</b> / consulta123 — Consulta</span>
-      </div>
-    </form>
+    <div class="login-card">
+      <form id="loginForm" autocomplete="on">
+        <h2>Entrar</h2>
+        <p class="muted">Acesse com suas credenciais de equipe.</p>
+        <div class="login-err" id="loginErr">Usuário ou senha inválidos. Tente novamente.</div>
+        <label>Usuário<input id="loginUser" class="input" required autocomplete="username" placeholder="seu.login"></label>
+        <label>Senha<input type="password" id="loginPass" class="input" required autocomplete="current-password" placeholder="••••••••"></label>
+        <button class="btn primary block" type="submit">Entrar no sistema</button>
+        <p class="swap-link">Primeiro acesso? <button type="button" class="link" id="goRegister">Criar meu usuário</button></p>
+        <div class="demo-creds">
+          <span><b>Perfis de demonstração</b></span>
+          <span><b>pedro</b> / admin123 — Administrador</span>
+          <span><b>nicholas</b> / editor123 — Editor</span>
+          <span><b>paolla</b> / consulta123 — Consulta</span>
+        </div>
+      </form>
+      <form id="registerForm" hidden autocomplete="off">
+        <h2>Criar meu acesso</h2>
+        <p class="muted">Informe sua matrícula de 4 dígitos para criar login e senha pessoais.</p>
+        <div class="login-err" id="regErr"></div>
+        <label>Nome completo<input id="regNome" class="input" required placeholder="Nome e sobrenome"></label>
+        <label>Matrícula (4 dígitos) · será seu login<input id="regMat" class="input mono" required inputmode="numeric" maxlength="4" placeholder="Ex.: 0123"></label>
+        <label>Senha (4 dígitos)<input type="password" id="regSenha" class="input mono" required inputmode="numeric" maxlength="4" placeholder="••••"></label>
+        <label>Confirmar senha<input type="password" id="regSenha2" class="input mono" required inputmode="numeric" maxlength="4" placeholder="••••"></label>
+        <button class="btn primary block" type="submit">Criar acesso e entrar</button>
+        <p class="swap-link">Já tem acesso? <button type="button" class="link" id="backLogin">Voltar ao login</button></p>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -310,12 +329,12 @@ body:not([data-papel="admin"]) .needs-admin{display:none!important}
 
     <!-- ───── DASHBOARD ───── -->
     <section class="view active" id="view-dashboard">
-      <div class="view-head"><h2>Visão geral do acervo</h2><p id="dashSub">Panorama consolidado dos bens sob responsabilidade da equipe.</p></div>
+      <div class="view-head"><h2>Visão geral do acervo</h2><p id="dashSub">Panorama consolidado dos bens sob responsabilidade da equipe. Clique nos cartões para navegar.</p></div>
       <div class="kpi-grid">
-        <div class="kpi"><div class="kpi-ico k-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v9M6 12h12v4M6 16v4M18 16v4M6 9h9"/></svg></div><div><b id="kTotal">0</b><span>Bens cadastrados</span></div></div>
-        <div class="kpi"><div class="kpi-ico k-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v20M16.5 6.5c-1-1.6-8.5-2-8.5 1.8 0 4 9 2.3 9 6.7 0 3.8-7.5 3.6-8.8 1.6"/></svg></div><div><b id="kValor">0</b><span>Valor total do acervo</span></div></div>
-        <div class="kpi"><div class="kpi-ico k-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg></div><div><b id="kSetores">0</b><span>Setores / núcleos</span></div></div>
-        <div class="kpi"><div class="kpi-ico k-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2.5 20h19L12 3zM12 10v4M12 17.2v.3"/></svg></div><div><b id="kPend">0</b><span>Pendências de localização</span></div></div>
+        <div class="kpi" data-kpi="bens" title="Clique para ver todos os bens"><div class="kpi-ico k-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v9M6 12h12v4M6 16v4M18 16v4M6 9h9"/></svg></div><div><b id="kTotal">0</b><span>Bens cadastrados</span></div></div>
+        <div class="kpi" data-kpi="valor" title="Clique para ver os bens por valor"><div class="kpi-ico k-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v20M16.5 6.5c-1-1.6-8.5-2-8.5 1.8 0 4 9 2.3 9 6.7 0 3.8-7.5 3.6-8.8 1.6"/></svg></div><div><b id="kValor">0</b><span>Valor total do acervo</span></div></div>
+        <div class="kpi" data-kpi="setores" title="Clique para ver o detalhe por setor"><div class="kpi-ico k-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg></div><div><b id="kSetores">0</b><span>Setores / núcleos</span></div></div>
+        <div class="kpi" data-kpi="pend" title="Clique para ver as pendências"><div class="kpi-ico k-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2.5 20h19L12 3zM12 10v4M12 17.2v.3"/></svg></div><div><b id="kPend">0</b><span>Pendências de localização</span></div></div>
       </div>
       <div class="dash-grid">
         <div class="card"><div class="card-h"><h3>Bens por categoria</h3></div><div class="chart" id="chartItens"></div></div>
@@ -337,7 +356,7 @@ body:not([data-papel="admin"]) .needs-admin{display:none!important}
         <select id="fItem" class="select"></select>
         <select id="fResp" class="select"></select>
         <select id="fStatus" class="select">
-          <option value="">Status: todos</option><option value="ok">Localizado</option><option value="bad">Não localizado</option><option value="low">Baixa</option><option value="off">Sem registro</option>
+          <option value="">Status: todos</option><option value="ok">Localizado</option><option value="bad">Não localizado</option><option value="low">Baixa</option><option value="off">Sem registro</option><option value="pend">⚠ Pendências</option>
         </select>
         <button class="btn ghost sm" id="btnClear">Limpar</button>
       </div>
@@ -409,7 +428,7 @@ body:not([data-papel="admin"]) .needs-admin{display:none!important}
         <form class="users-form" id="formUser">
           <label>Nome completo<input class="input" id="nuNome" required></label>
           <label>Login<input class="input" id="nuLogin" required pattern="[a-z0-9.]+" title="minúsculas, números e ponto"></label>
-          <label>Senha<input class="input" id="nuSenha" required minlength="6"></label>
+          <label>Senha<input class="input" id="nuSenha" required minlength="4"></label>
           <label>Perfil<select class="select" id="nuPapel"><option value="consulta">Consulta</option><option value="editor">Editor</option><option value="admin">Administrador</option></select></label>
           <button class="btn primary">Adicionar</button>
         </form>
@@ -419,7 +438,7 @@ body:not([data-papel="admin"]) .needs-admin{display:none!important}
         <th style="padding:12px 16px;text-align:left;font:600 10.5px 'Sora';text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">Login</th>
         <th style="padding:12px 16px;text-align:left;font:600 10.5px 'Sora';text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">Perfil</th>
         <th></th></tr></thead><tbody id="tbUsers"></tbody></table></div>
-      <p class="io-note" style="margin-top:12px"><b>Perfis:</b> Administrador — tudo, incluindo excluir bens e gerenciar usuários · Editor — cadastra, edita, movimenta e importa · Consulta — apenas visualiza.</p>
+      <p class="io-note" style="margin-top:12px"><b>Perfis:</b> Administrador — tudo, incluindo excluir bens e gerenciar usuários · Editor — cadastra, edita, movimenta e importa · Consulta — apenas visualiza. Novos cadastros por autoatendimento entram como Consulta.</p>
     </section>
   </main>
 </div>
@@ -434,6 +453,9 @@ body:not([data-papel="admin"]) .needs-admin{display:none!important}
 
 <script src="data.js"></script>
 <script>
+/* ═══════════════════════ CONFIG ═══════════════════════ */
+const PAPEL_PADRAO_REGISTRO='consulta'; // mude para 'editor' se quiser que novos cadastros já possam editar
+
 /* ═══════════════════════ STORAGE ═══════════════════════ */
 const DB = {
   key:'pm_v1', data:null,
@@ -512,7 +534,7 @@ function renderDashboard(){
   const bens=DB.data.bens;
   const valor=bens.reduce((s,b)=>s+(b.valor||0),0);
   const setores=new Set(bens.map(b=>b.setor).filter(Boolean));
-  const pend=bens.filter(b=>b.encontrado===false || /baixa|danificad/i.test(`${b.usuario} ${b.local}`)).length;
+  const pend=bens.filter(b=>statusOf(b).k!=='ok').length;
   countUp($('#kTotal'),bens.length,v=>v);
   countUp($('#kValor'),valor,compactMoney);
   countUp($('#kSetores'),setores.size,v=>v);
@@ -528,10 +550,22 @@ function renderDashboard(){
   $('#alertList').innerHTML = alertas.length? alertas.map(b=>{ const st=statusOf(b);
     return `<div class="alert-item" onclick="openDrawer(${b.codigo})"><div class="tl-ico" style="background:${st.k==='bad'?'var(--bad-soft)':st.k==='low'?'var(--amber-soft)':'var(--gray-soft)'};color:${st.k==='bad'?'var(--bad)':st.k==='low'?'#9a6d1c':'var(--muted)'}">!</div><p><b class="mono">${b.codigo}</b> · ${esc(b.item)} — ${esc(b.setor||'sem setor')}<small class="muted" style="display:block;font-size:11.5px">${esc((b.local||b.usuario||'sem detalhes').slice(0,70))}</small></p><span class="badge ${st.k}">${st.t}</span></div>`; }).join('') : '<div class="empty">Nenhum alerta. Tudo em ordem ✓</div>';
 }
+function openSetoresModal(){
+  const map={};
+  DB.data.bens.forEach(b=>{ const s=b.setor||'Sem setor'; map[s]=map[s]||{n:0,v:0}; map[s].n++; map[s].v+=b.valor||0; });
+  const rows=Object.entries(map).sort((a,b)=>b[1].n-a[1].n);
+  openModal(`<div class="modal-h"><h3>Setores / núcleos (${rows.length})</h3><button class="x" onclick="closeModal()">✕</button></div>
+  <div class="modal-b" style="padding:8px 24px 20px">
+    <p class="muted" style="font-size:12px;padding:8px 6px 4px">Clique em um setor para ver os bens dele.</p>
+    ${rows.map(([s,o])=>`<div class="setor-row" data-setor="${esc(s)}"><span><b>${esc(s)}</b></span><span class="muted">${o.n} bens · ${money(o.v)}</span></div>`).join('')}
+  </div>`);
+  $$('#modalCard .setor-row').forEach(r=>r.onclick=()=>{ closeModal(); grid.text='';grid.item='';grid.resp='';grid.status=''; grid.setor=r.dataset.setor; syncFilterInputs(); goto('bens'); });
+}
 
 /* ═══════════════════════ TABELA DE BENS ═══════════════════════ */
 const PAGE=16;
 const grid={text:'',setor:'',item:'',resp:'',status:'',page:1,sort:'codigo',dir:1};
+function syncFilterInputs(){ $('#fText').value=grid.text; $('#fSetor').value=grid.setor; $('#fItem').value=grid.item; $('#fResp').value=grid.resp; $('#fStatus').value=grid.status; }
 function fillSelect(sel,vals,label){ sel.innerHTML=`<option value="">${label}: todos</option>`+[...new Set(vals)].filter(Boolean).sort((a,b)=>a.localeCompare(b,'pt-BR')).map(v=>`<option>${esc(v)}</option>`).join(''); }
 function refreshFilters(){
   fillSelect($('#fSetor'), DB.data.bens.map(b=>b.setor),'Setor');
@@ -548,7 +582,8 @@ function filteredBens(){
     if(grid.setor && b.setor!==grid.setor) return false;
     if(grid.item && b.item!==grid.item) return false;
     if(grid.resp && b.responsavel!==grid.resp) return false;
-    if(grid.status && statusOf(b).k!==grid.status) return false;
+    if(grid.status==='pend'){ if(statusOf(b).k==='ok') return false; }
+    else if(grid.status && statusOf(b).k!==grid.status) return false;
     if(t){ const hay=normTxt(`${b.codigo} ${b.item} ${b.marca} ${b.cor} ${b.detalhes} ${b.setor} ${b.usuario} ${b.local} ${b.responsavel}`); if(!hay.includes(t)) return false; }
     return true;
   }).sort((a,b)=>{ let va,vb;
@@ -815,15 +850,45 @@ function initEvents(){
     if(Auth.login($('#loginUser').value,$('#loginPass').value)){ $('#loginErr').style.display='none'; enterApp(); }
     else{ $('#loginErr').style.display='block'; $('#loginPass').value=''; }
   });
+  // autoatendimento: criar meu usuário
+  $('#goRegister').onclick=()=>{ $('#loginForm').hidden=true; $('#registerForm').hidden=false; $('#regErr').style.display='none'; };
+  $('#backLogin').onclick=()=>{ $('#registerForm').hidden=true; $('#loginForm').hidden=false; };
+  ['regMat','regSenha','regSenha2'].forEach(id=>$('#'+id).addEventListener('input',e=>{ e.target.value=e.target.value.replace(/\D/g,'').slice(0,4); }));
+  $('#registerForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const err=m=>{ const el=$('#regErr'); el.textContent=m; el.style.display='block'; };
+    const nome=$('#regNome').value.trim(), mat=$('#regMat').value.trim(), s1=$('#regSenha').value.trim(), s2=$('#regSenha2').value.trim();
+    if(nome.length<5) return err('Informe o nome completo.');
+    if(!/^[0-9]{4}$/.test(mat)) return err('A matrícula deve ter exatamente 4 dígitos numéricos.');
+    if(!/^[0-9]{4}$/.test(s1)) return err('A senha deve ter exatamente 4 dígitos numéricos.');
+    if(s1!==s2) return err('As senhas não conferem. Digite novamente.');
+    if(DB.data.users.some(u=>u.login===mat)) return err('Esta matrícula já possui acesso. Use "Entrar" ou procure um administrador.');
+    DB.data.users.push({nome, login:mat, senha:s1, papel:PAPEL_PADRAO_REGISTRO});
+    DB.save();
+    Auth.login(mat,s1);
+    logHist('sistema',`Novo acesso criado por autoatendimento: ${nome} (matrícula ${mat}), perfil ${PAPEL_NOME[PAPEL_PADRAO_REGISTRO]}.`);
+    toast('Acesso criado com sucesso. Bem-vindo(a), '+nome.split(' ')[0]+'!');
+    enterApp();
+  });
   $('#btnLogout').onclick=()=>{ Auth.logout(); location.reload(); };
   $$('.nav-item').forEach(n=>n.onclick=()=>goto(n.dataset.view));
+  // cartões KPI clicáveis
+  $$('.kpi').forEach(k=>k.addEventListener('click',()=>{
+    const t=k.dataset.kpi;
+    if(t==='setores'){ openSetoresModal(); return; }
+    grid.text=''; grid.item=''; grid.resp='';
+    if(t==='bens'){ grid.setor=''; grid.status=''; grid.sort='codigo'; grid.dir=1; }
+    if(t==='valor'){ grid.setor=''; grid.status=''; grid.sort='valor'; grid.dir=-1; }
+    if(t==='pend'){ grid.setor=''; grid.status='pend'; }
+    syncFilterInputs(); goto('bens');
+  }));
   $('#globalSearch').addEventListener('input',e=>{ grid.text=e.target.value; grid.page=1; goto('bens'); });
   $('#fText').addEventListener('input',e=>{ grid.text=e.target.value; grid.page=1; renderBens(); });
   $('#fSetor').onchange=e=>{ grid.setor=e.target.value; grid.page=1; renderBens(); };
   $('#fItem').onchange=e=>{ grid.item=e.target.value; grid.page=1; renderBens(); };
   $('#fResp').onchange=e=>{ grid.resp=e.target.value; grid.page=1; renderBens(); };
   $('#fStatus').onchange=e=>{ grid.status=e.target.value; grid.page=1; renderBens(); };
-  $('#btnClear').onclick=()=>{ grid.text=grid.setor=grid.item=grid.resp=grid.status=''; grid.page=1; $('#fText').value=''; $('#globalSearch').value=''; refreshFilters(); renderBens(); };
+  $('#btnClear').onclick=()=>{ grid.text=grid.setor=grid.item=grid.resp=grid.status=''; grid.page=1; grid.sort='codigo'; grid.dir=1; $('#globalSearch').value=''; syncFilterInputs(); renderBens(); };
   $('#pgPrev').onclick=()=>{ grid.page--; renderBens(); };
   $('#pgNext').onclick=()=>{ grid.page++; renderBens(); };
   $$('thead th[data-sort]').forEach(th=>th.onclick=()=>{ const s=th.dataset.sort; if(grid.sort===s) grid.dir*=-1; else {grid.sort=s;grid.dir=1;} renderBens(); });

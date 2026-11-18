@@ -991,7 +991,36 @@ function openDelete(cod){
   <div class="modal-h"><h3>Excluir bem</h3><button class="x" onclick="closeModal()">✕</button></div>
   <div class="modal-b"><p style="font-size:14px;line-height:1.6">Confirma a exclusão definitiva do bem <b class="mono">${b.codigo} — ${esc(b.item)}</b>${b.setor?` (${esc(b.setor)})`:''}?<br><span class="muted" style="font-size:12.5px">Esta ação não pode ser desfeita.</span></p></div>
   <div class="modal-f"><button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn danger" id="btnConfirmDel">Excluir definitivamente</button></div>`);
-  $('#btnConfirmDel').onclick=()=>{ DB.data.bens=DB.data.bens.filter(x=>x.codigo!==cod); logHist('exclusao',`Bem ${cod} (${b.item}) foi excluído do acervo.`,cod); DB.save(); Cloud.deleteBem(cod); closeModal(); closeDrawer(); refreshFilters(); renderBens(); renderDashboard(); toast('Bem excluído.','warn'); };
+  $('#btnConfirmDel').onclick=async()=>{
+    // 1. Remove localmente primeiro (para feedback imediato)
+    DB.data.bens=DB.data.bens.filter(x=>x.codigo!==cod);
+    DB.save();
+    closeModal();
+    closeDrawer();
+    refreshFilters();
+    renderBens();
+    renderDashboard();
+    
+    // 2. Tenta excluir no Supabase
+    if(Cloud.on){
+      const { error } = await Cloud.sb.from('bens').delete().eq('codigo', cod);
+      if(error){
+        // Se falhou no banco, reverte a exclusão local
+        DB.data.bens.push(b);
+        DB.save();
+        refreshFilters();
+        renderBens();
+        renderDashboard();
+        toast('Erro ao excluir no banco: '+error.message, 'err');
+        console.error('Erro na exclusão:', error);
+        return;
+      }
+    }
+    
+    // 3. Registra no histórico
+    logHist('exclusao',`Bem ${cod} (${b.item}) foi excluído do acervo.`,cod);
+    toast('Bem excluído com sucesso.','warn');
+  };
 }
 
 /* ═══════════════════════ MOVIMENTAÇÕES ═══════════════════════ */

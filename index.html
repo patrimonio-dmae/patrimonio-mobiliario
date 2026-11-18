@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Patrimônio Mobiliário · Gestão de Bens</title>
+<title>Patrimônio Mobiliário · Gestão de Itens</title>
 <meta name="description" content="Sistema interno de gestão de patrimônio mobiliário da equipe.">
 <meta name="theme-color" content="#0b3844">
 <link rel="manifest" href="manifest.json">
@@ -151,14 +151,14 @@ main{padding:26px 32px 48px;min-width:0}
 .setor-row:hover{background:#f5f9fa}
 .setor-row:last-child{border-bottom:0}
 
-/* bens — toolbar + tabela */
+/* itens — toolbar + tabela */
 .toolbar{display:flex;gap:10px;padding:14px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
 .toolbar .f-search{flex:1;min-width:220px;position:relative}
 .toolbar .f-search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--muted)}
 .toolbar .f-search input{padding-left:34px}
 .toolbar .select{width:auto;min-width:140px}
 .table-card{overflow:auto;max-height:calc(100vh - 305px)}
-table.bens{width:100%;border-collapse:collapse;font-size:13.5px;min-width:880px}
+table.itens{width:100%;border-collapse:collapse;font-size:13.5px;min-width:880px}
 thead th{position:sticky;top:0;z-index:2;background:#f7fafb;text-align:left;font:600 10.5px 'Sora';text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:11px 14px;border-bottom:1px solid var(--line);cursor:pointer;user-select:none;white-space:nowrap}
 thead th:hover{color:var(--petrol-600)}
 tbody td{padding:11px 14px;border-bottom:1px solid #edf1f3;vertical-align:middle}
@@ -277,7 +277,7 @@ body:not([data-papel="admin"]) .needs-admin{display:none!important}
     <div class="brand-content">
       <div class="logo-big"><img src="icon.svg" alt=""><span>PATRIMÔNIO<br>MOBILIÁRIO</span></div>
     </div>
-    <div class="brand-foot">Uso interno · v2.2 · 2026</div>
+    <div class="brand-foot">Uso interno · v2.3 · 2026</div>
   </div>
   <div class="login-panel">
     <div class="login-card">
@@ -311,7 +311,7 @@ body:not([data-papel="admin"]) .needs-admin{display:none!important}
     <div class="side-logo"><img src="icon.svg" alt=""><div><b>Patrimônio</b><span>Mobiliário</span></div></div>
     <nav id="mainNav">
       <button class="nav-item active" data-view="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/></svg><span>Dashboard</span></button>
-      <button class="nav-item" data-view="bens"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v9M6 12h12v4M6 16v4M18 16v4M6 9h9"/></svg><span>Bens</span></button>
+      <button class="nav-item" data-view="itens"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v9M6 12h12v4M6 16v4M18 16v4M6 9h9"/></svg><span>Itens</span></button>
       <button class="nav-item" data-view="mov"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h13M13 3l4 4-4 4M20 17H7M11 21l-4-4 4-4"/></svg><span>Movimentações</span></button>
       <button class="nav-item needs-edit" data-view="io"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 11l4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg><span>Importar / Exportar</span></button>
       <button class="nav-item needs-admin" data-view="users"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3.4"/><path d="M3 20c0-3.3 2.7-5.2 6-5.2s6 1.9 6 5.2"/><circle cx="17.5" cy="9.5" r="2.4"/><path d="M16.5 15.4c2.6.4 4.5 1.9 4.5 4.6"/></svg><span>Usuários</span></button>
@@ -334,28 +334,28 @@ body:not([data-papel="admin"]) .needs-admin{display:none!important}
 
     <!-- ───── DASHBOARD ───── -->
     <section class="view active" id="view-dashboard">
-      <div class="view-head"><h2>Visão geral do acervo</h2><p id="dashSub">Panorama consolidado dos bens sob responsabilidade da equipe. Clique nos cartões para navegar.</p></div>
+      <div class="view-head"><h2>Visão geral do acervo</h2><p id="dashSub">Panorama consolidado dos itens sob responsabilidade da equipe. Clique nos cartões para navegar.</p></div>
       <div class="kpi-grid">
-        <div class="kpi" data-kpi="bens" title="Clique para ver todos os bens"><div class="kpi-ico k-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v9M6 12h12v4M6 16v4M18 16v4M6 9h9"/></svg></div><div><b id="kTotal">0</b><span>Bens cadastrados</span></div></div>
-        <div class="kpi" data-kpi="valor" title="Clique para ver os bens por valor"><div class="kpi-ico k-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v20M16.5 6.5c-1-1.6-8.5-2-8.5 1.8 0 4 9 2.3 9 6.7 0 3.8-7.5 3.6-8.8 1.6"/></svg></div><div><b id="kValor">0</b><span>Valor total do acervo</span></div></div>
+        <div class="kpi" data-kpi="itens" title="Clique para ver todos os itens"><div class="kpi-ico k-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v9M6 12h12v4M6 16v4M18 16v4M6 9h9"/></svg></div><div><b id="kTotal">0</b><span>Itens cadastrados</span></div></div>
+        <div class="kpi" data-kpi="valor" title="Clique para ver os itens por valor"><div class="kpi-ico k-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v20M16.5 6.5c-1-1.6-8.5-2-8.5 1.8 0 4 9 2.3 9 6.7 0 3.8-7.5 3.6-8.8 1.6"/></svg></div><div><b id="kValor">0</b><span>Valor total do acervo</span></div></div>
         <div class="kpi" data-kpi="setores" title="Clique para ver o detalhe por setor"><div class="kpi-ico k-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg></div><div><b id="kSetores">0</b><span>Setores / núcleos</span></div></div>
         <div class="kpi" data-kpi="pend" title="Clique para ver as pendências"><div class="kpi-ico k-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2.5 20h19L12 3zM12 10v4M12 17.2v.3"/></svg></div><div><b id="kPend">0</b><span>Pendências de localização</span></div></div>
       </div>
       <div class="dash-grid">
-        <div class="card"><div class="card-h"><h3>Bens por categoria</h3></div><div class="chart" id="chartItens"></div></div>
+        <div class="card"><div class="card-h"><h3>Itens por categoria</h3></div><div class="chart" id="chartItens"></div></div>
         <div class="card"><div class="card-h"><h3>Distribuição por setor</h3></div><div class="chart" id="chartSetores"></div></div>
         <div class="card"><div class="card-h"><h3>Atividade recente</h3><button class="link" data-goto="mov">ver todas</button></div><div id="recentList"></div></div>
         <div class="card"><div class="card-h"><h3>Alertas</h3></div><div id="alertList"></div></div>
       </div>
     </section>
 
-    <!-- ───── BENS ───── -->
-    <section class="view" id="view-bens">
+    <!-- ───── ITENS ───── -->
+    <section class="view" id="view-itens">
       <div class="view-head row">
-        <div><h2>Bens</h2><p id="bensCount"></p></div>
+        <div><h2>Itens</h2><p id="itensCount"></p></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <button class="btn ghost" id="btnRelatorioPDF">📄 Relatório PDF</button>
-          <button class="btn primary needs-edit" id="btnNovo">＋ Novo bem</button>
+          <button class="btn primary needs-edit" id="btnNovo">＋ Novo item</button>
         </div>
       </div>
       <div class="toolbar card">
@@ -369,12 +369,12 @@ body:not([data-papel="admin"]) .needs-admin{display:none!important}
         <button class="btn ghost sm" id="btnClear">Limpar</button>
       </div>
       <div class="card table-card">
-        <table class="bens">
+        <table class="itens">
           <thead><tr>
             <th data-sort="codigo">Código</th><th data-sort="item">Item</th><th data-sort="setor">Setor</th>
             <th>Quem utiliza</th><th>Local</th><th data-sort="valor" style="text-align:right">Valor</th><th>Status</th>
           </tr></thead>
-          <tbody id="tbBens"></tbody>
+          <tbody id="tbItens"></tbody>
         </table>
         <div class="pager"><span id="pgInfo"></span><div style="display:flex;gap:8px;align-items:center"><button id="pgPrev">←</button><span id="pgNum"></span><button id="pgNext">→</button></div></div>
       </div>
@@ -400,7 +400,7 @@ body:not([data-papel="admin"]) .needs-admin{display:none!important}
           </div>
           <div class="imp-summary" id="impSummary">
             <div class="imp-chips" id="impChips"></div>
-            <div class="card" style="box-shadow:none;overflow:auto;max-height:260px"><table class="bens"><thead><tr><th>Código</th><th>Item</th><th>Setor</th><th>Quem utiliza</th><th style="text-align:right">Valor</th></tr></thead><tbody id="impPreview"></tbody></table></div>
+            <div class="card" style="box-shadow:none;overflow:auto;max-height:260px"><table class="itens"><thead><tr><th>Código</th><th>Item</th><th>Setor</th><th>Quem utiliza</th><th style="text-align:right">Valor</th></tr></thead><tbody id="impPreview"></tbody></table></div>
             <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:center">
               <select id="impStrategy" class="select" style="width:auto">
                 <option value="upsert">Atualizar existentes + incluir novos</option>
@@ -474,7 +474,7 @@ const DB = {
     if(!this.data || !Array.isArray(this.data.bens) || !this.data.bens.length){
       this.data = {
         bens: SEED_BENS.map(x=>({...x})),
-        hist: [{data:new Date().toISOString(), usuario:'Sistema', acao:'importacao', descricao:`Base inicial carregada da planilha "Patrimônio Mobiliário.xlsx" (${SEED_BENS.length} bens).`, codigo:null}],
+        hist: [{data:new Date().toISOString(), usuario:'Sistema', acao:'importacao', descricao:`Base inicial carregada da planilha "Patrimônio Mobiliário.xlsx" (${SEED_BENS.length} itens).`, codigo:null}],
         users: SEED_USERS.map(x=>({...x}))
       };
       this.save();
@@ -486,19 +486,35 @@ const DB = {
   save(){ localStorage.setItem(this.key, JSON.stringify(this.data)); }
 };
 
-/* ═══════════════════════ HISTÓRICO (com fila de pendências) ═══════════════════════ */
+/* ═══════════════════════ HISTÓRICO (com fila de pendências e proteção contra duplicação) ═══════════════════════ */
 const Outbox = {
   key:'pm_hist_pending',
   items:[],
+  flushing:false,
   init(){ try{ this.items=JSON.parse(localStorage.getItem(this.key)||'[]'); }catch(e){ this.items=[]; } },
   save(){ localStorage.setItem(this.key, JSON.stringify(this.items.slice(-300))); },
-  add(h){ if(!this.items.some(x=>x.data===h.data&&x.descricao===h.descricao)) this.items.push(h); this.save(); },
-  remove(h){ const n=this.items.length; this.items=this.items.filter(x=>!(x.data===h.data&&x.descricao===h.descricao)); if(this.items.length!==n) this.save(); },
+  add(h){
+    const key = h.data+'|'+h.descricao;
+    if(!this.items.some(x=>(x.data+'|'+x.descricao)===key)) this.items.push(h);
+    this.save();
+  },
+  remove(h){
+    const key = h.data+'|'+h.descricao;
+    const n=this.items.length;
+    this.items=this.items.filter(x=>(x.data+'|'+x.descricao)!==key);
+    if(this.items.length!==n) this.save();
+  },
   async flush(){
-    if(!Cloud.on||!this.items.length) return;
-    const batch=[...this.items];
-    const { error } = await Cloud.sb.from('hist').insert(batch.map(h=>({data:h.data,usuario:h.usuario,acao:h.acao,descricao:h.descricao,codigo:h.codigo})));
-    if(!error) batch.forEach(h=>this.remove(h));
+    if(!Cloud.on||!this.items.length||this.flushing) return;
+    this.flushing = true;
+    try {
+      const batch=[...this.items];
+      const { error } = await Cloud.sb.from('hist').insert(batch.map(h=>({data:h.data,usuario:h.usuario,acao:h.acao,descricao:h.descricao,codigo:h.codigo})));
+      if(!error) batch.forEach(h=>this.remove(h));
+      else console.warn('Outbox flush error:', error);
+    } finally {
+      this.flushing = false;
+    }
   }
 };
 
@@ -570,7 +586,7 @@ async function refreshFromCloud(){
   DB.save(); refreshFilters();
   const v=document.querySelector('.view.active'); if(!v) return;
   if(v.id==='view-dashboard') renderDashboard();
-  if(v.id==='view-bens') renderBens();
+  if(v.id==='view-itens') renderItens();
   if(v.id==='view-mov') renderMov();
 }
 function debounce(fn,ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; }
@@ -639,7 +655,7 @@ function goto(view){
   $$('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.view===view));
   $$('.view').forEach(v=>v.classList.toggle('active', v.id==='view-'+view));
   if(view==='dashboard') renderDashboard();
-  if(view==='bens') renderBens();
+  if(view==='itens') renderItens();
   if(view==='mov') renderMov();
   if(view==='users') renderUsers();
   window.scrollTo({top:0});
@@ -656,22 +672,22 @@ function barChart(el,entries,amber){ const max=Math.max(...entries.map(e=>e[1]),
   requestAnimationFrame(()=>requestAnimationFrame(()=>el.querySelectorAll('.bar-fill').forEach(f=>f.style.width=f.dataset.w+'%')));
 }
 function renderDashboard(){
-  const bens=DB.data.bens;
-  const valor=bens.reduce((s,b)=>s+(b.valor||0),0);
-  const setores=new Set(bens.map(b=>b.setor).filter(Boolean));
-  const pend=bens.filter(b=>statusOf(b).k!=='ok').length;
-  countUp($('#kTotal'),bens.length,v=>v);
+  const itens=DB.data.bens;
+  const valor=itens.reduce((s,b)=>s+(b.valor||0),0);
+  const setores=new Set(itens.map(b=>b.setor).filter(Boolean));
+  const pend=itens.filter(b=>statusOf(b).k!=='ok').length;
+  countUp($('#kTotal'),itens.length,v=>v);
   countUp($('#kValor'),valor,compactMoney);
   countUp($('#kSetores'),setores.size,v=>v);
   countUp($('#kPend'),pend,v=>v);
   const byItem={}, bySetor={};
-  bens.forEach(b=>{ byItem[b.item||'Outros']=(byItem[b.item||'Outros']||0)+1; if(b.setor) bySetor[b.setor]=(bySetor[b.setor]||0)+1; });
+  itens.forEach(b=>{ byItem[b.item||'Outros']=(byItem[b.item||'Outros']||0)+1; if(b.setor) bySetor[b.setor]=(bySetor[b.setor]||0)+1; });
   barChart($('#chartItens'), Object.entries(byItem).sort((a,b)=>b[1]-a[1]).slice(0,8));
   barChart($('#chartSetores'), Object.entries(bySetor).sort((a,b)=>b[1]-a[1]).slice(0,8), true);
   const hist=DB.data.hist.slice(0,7);
   $('#recentList').innerHTML = hist.length? hist.map(h=>{ const [ic,bg,fg]=ACT[h.acao]||ACT.sistema;
     return `<div class="recent-item" ${h.codigo?`onclick="openDrawer(${h.codigo})"`:''}><div class="tl-ico" style="background:${bg};color:${fg}">${ic}</div><p>${esc(h.descricao)}<small>${esc(h.usuario)} · ${relTime(h.data)}</small></p></div>`; }).join('') : '<div class="empty">Sem registros.</div>';
-  const alertas=bens.filter(b=>statusOf(b).k!=='ok').slice(0,6);
+  const alertas=itens.filter(b=>statusOf(b).k!=='ok').slice(0,6);
   $('#alertList').innerHTML = alertas.length? alertas.map(b=>{ const st=statusOf(b);
     return `<div class="alert-item" onclick="openDrawer(${b.codigo})"><div class="tl-ico" style="background:${st.k==='bad'?'var(--bad-soft)':st.k==='low'?'var(--amber-soft)':'var(--gray-soft)'};color:${st.k==='bad'?'var(--bad)':st.k==='low'?'#9a6d1c':'var(--muted)'}">!</div><p><b class="mono">${b.codigo}</b> · ${esc(b.item)} — ${esc(b.setor||'sem setor')}<small class="muted" style="display:block;font-size:11.5px">${esc((b.local||b.usuario||'sem detalhes').slice(0,70))}</small></p><span class="badge ${st.k}">${st.t}</span></div>`; }).join('') : '<div class="empty">Nenhum alerta. Tudo em ordem ✓</div>';
 }
@@ -681,13 +697,13 @@ function openSetoresModal(){
   const rows=Object.entries(map).sort((a,b)=>b[1].n-a[1].n);
   openModal(`<div class="modal-h"><h3>Setores / núcleos (${rows.length})</h3><button class="x" onclick="closeModal()">✕</button></div>
   <div class="modal-b" style="padding:8px 24px 20px">
-    <p class="muted" style="font-size:12px;padding:8px 6px 4px">Clique em um setor para ver os bens dele.</p>
-    ${rows.map(([s,o])=>`<div class="setor-row" data-setor="${esc(s)}"><span><b>${esc(s)}</b></span><span class="muted">${o.n} bens · ${money(o.v)}</span></div>`).join('')}
+    <p class="muted" style="font-size:12px;padding:8px 6px 4px">Clique em um setor para ver os itens dele.</p>
+    ${rows.map(([s,o])=>`<div class="setor-row" data-setor="${esc(s)}"><span><b>${esc(s)}</b></span><span class="muted">${o.n} itens · ${money(o.v)}</span></div>`).join('')}
   </div>`);
-  $$('#modalCard .setor-row').forEach(r=>r.onclick=()=>{ closeModal(); grid.text='';grid.item='';grid.resp='';grid.status=''; grid.setor=r.dataset.setor; syncFilterInputs(); goto('bens'); });
+  $$('#modalCard .setor-row').forEach(r=>r.onclick=()=>{ closeModal(); grid.text='';grid.item='';grid.resp='';grid.status=''; grid.setor=r.dataset.setor; syncFilterInputs(); goto('itens'); });
 }
 
-/* ═══════════════════════ TABELA DE BENS ═══════════════════════ */
+/* ═══════════════════════ TABELA DE ITENS ═══════════════════════ */
 const PAGE=16;
 const grid={text:'',setor:'',item:'',resp:'',status:'',page:1,sort:'codigo',dir:1};
 function syncFilterInputs(){ $('#fText').value=grid.text; $('#fSetor').value=grid.setor; $('#fItem').value=grid.item; $('#fResp').value=grid.resp; $('#fStatus').value=grid.status; }
@@ -701,7 +717,7 @@ function refreshFilters(){
   $('#dlMarcas').innerHTML=[...new Set(DB.data.bens.map(b=>b.marca).filter(Boolean))].map(v=>`<option value="${esc(v)}">`).join('');
   $('#dlPessoas').innerHTML=[...new Set([...DB.data.users.map(u=>u.nome),...DB.data.bens.map(b=>b.usuario).filter(u=>u&&u!=='-')])].map(v=>`<option value="${esc(v)}">`).join('');
 }
-function filteredBens(){
+function filteredItens(){
   const t=normTxt(grid.text);
   return DB.data.bens.filter(b=>{
     if(grid.setor && b.setor!==grid.setor) return false;
@@ -716,13 +732,13 @@ function filteredBens(){
     return (va<vb?-1:va>vb?1:0)*grid.dir;
   });
 }
-function renderBens(){
-  const list=filteredBens();
+function renderItens(){
+  const list=filteredItens();
   const pages=Math.max(1,Math.ceil(list.length/PAGE));
   grid.page=Math.min(Math.max(1,grid.page),pages);
   const slice=list.slice((grid.page-1)*PAGE, grid.page*PAGE);
-  $('#bensCount').textContent=`${list.length} bens encontrado${list.length!==1?'s':''}`;
-  $('#tbBens').innerHTML = slice.length? slice.map(b=>{ const st=statusOf(b);
+  $('#itensCount').textContent=`${list.length} item${list.length!==1?'s':''} encontrado${list.length!==1?'s':''}`;
+  $('#tbItens').innerHTML = slice.length? slice.map(b=>{ const st=statusOf(b);
     return `<tr onclick="openDrawer(${b.codigo})">
       <td class="mono">${b.codigo}</td>
       <td><b>${esc(b.item)}</b><span class="sub">${esc([b.marca,b.cor].filter(x=>x&&x!=='-').join(' · ')||'—')}</span></td>
@@ -731,7 +747,7 @@ function renderBens(){
       <td class="local" title="${esc(b.local||'')}">${esc(b.local||'—')}</td>
       <td class="num">${money(b.valor)}</td>
       <td><span class="badge ${st.k}">${st.t}</span></td>
-    </tr>`; }).join('') : `<tr><td colspan="7"><div class="empty">Nenhum bem encontrado com os filtros atuais.</div></td></tr>`;
+    </tr>`; }).join('') : `<tr><td colspan="7"><div class="empty">Nenhum item encontrado com os filtros atuais.</div></td></tr>`;
   $('#pgInfo').textContent = list.length? `Mostrando ${(grid.page-1)*PAGE+1}–${Math.min(grid.page*PAGE,list.length)} de ${list.length}` : '0 resultados';
   $('#pgNum').textContent = `página ${grid.page} / ${pages}`;
   $('#pgPrev').disabled = grid.page<=1; $('#pgNext').disabled = grid.page>=pages;
@@ -758,13 +774,13 @@ function openDrawer(cod){
     ${b.detalhes?`<div class="d-det">${esc(b.detalhes)}</div>`:''}
     ${b.obs?`<div class="d-det" style="border-left:3px solid var(--amber)"><b style="font-family:'Sora';font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#9a6d1c">Observações</b><br>${esc(b.obs)}</div>`:''}
     <div class="d-actions">
-      ${Auth.can('edit')?`<button class="btn primary sm" onclick="openBemForm(${b.codigo})">✎ Editar</button><button class="btn ghost sm" onclick="openMoveForm(${b.codigo})">⇄ Movimentar</button>`:''}
+      ${Auth.can('edit')?`<button class="btn primary sm" onclick="openItemForm(${b.codigo})">✎ Editar</button><button class="btn ghost sm" onclick="openMoveForm(${b.codigo})">⇄ Movimentar</button>`:''}
       ${Auth.can('delete')?`<button class="btn danger sm" onclick="openDelete(${b.codigo})">Excluir</button>`:''}
       <button class="btn ghost sm" onclick="openQRCode(${b.codigo})">📱 QR Code</button>
-      <button class="btn ghost sm" onclick="downloadBemPDF(${b.codigo})">📄 Ficha PDF</button>
+      <button class="btn ghost sm" onclick="downloadItemPDF(${b.codigo})">📄 Ficha PDF</button>
       <button class="btn ghost sm" onclick="window.print()">🖨 Imprimir ficha</button>
     </div>
-    <div class="d-hist"><h4>Últimos registros deste bem</h4>
+    <div class="d-hist"><h4>Últimos registros deste item</h4>
       ${hist.length? hist.map(h=>{const [ic,bg,fg]=ACT[h.acao]||ACT.sistema; return `<div class="tl-item"><div class="tl-dot" style="background:${bg};color:${fg}">${ic}</div><div><p>${esc(h.descricao)}</p><small>${esc(h.usuario)} · ${fmtDate(h.data)} ${new Date(h.data).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</small></div></div>`;}).join('') : '<p class="muted" style="font-size:13px">Sem registros individuais.</p>'}
     </div>`;
   $('#drawer').classList.add('open'); $('#backdrop').classList.add('on');
@@ -778,9 +794,9 @@ function closeModal(){ $('#modalWrap').classList.remove('on'); setTimeout(()=>{$
 /* ═══════════════════════ QR CODE ═══════════════════════ */
 function openQRCode(cod){
   const b=DB.data.bens.find(x=>x.codigo===cod); if(!b) return;
-  const url=`${window.location.origin}${window.location.pathname}?bem=${cod}`;
+  const url=`${window.location.origin}${window.location.pathname}?item=${cod}`;
   openModal(`
-  <div class="modal-h"><h3>QR Code — Bem ${b.codigo}</h3><button class="x" onclick="closeModal()">✕</button></div>
+  <div class="modal-h"><h3>QR Code — Item ${b.codigo}</h3><button class="x" onclick="closeModal()">✕</button></div>
   <div class="modal-b">
     <div class="qr-container">
       <div class="qr-box"><div id="qrCode"></div></div>
@@ -807,14 +823,14 @@ function openQRCode(cod){
 }
 function printQRCode(cod){
   const b=DB.data.bens.find(x=>x.codigo===cod); if(!b) return;
-  const url=`${window.location.origin}${window.location.pathname}?bem=${cod}`;
+  const url=`${window.location.origin}${window.location.pathname}?item=${cod}`;
   const w=window.open('','_blank','width=400,height=500');
   w.document.write(`<!DOCTYPE html><html><head><title>Etiqueta ${b.codigo}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:20px}.qr{margin:20px auto}h2{margin:10px 0}p{margin:5px 0;font-size:14px}</style></head><body><h2>${esc(b.item)}</h2><p><b>Código: ${b.codigo}</b></p><div class="qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}" alt="QR Code"></div><p style="font-size:11px;color:#666">Escaneie para ver a ficha completa</p><script>window.print()<\/script></body></html>`);
   w.document.close();
 }
 
 /* ═══════════════════════ PDF INDIVIDUAL ═══════════════════════ */
-function downloadBemPDF(cod){
+function downloadItemPDF(cod){
   const b=DB.data.bens.find(x=>x.codigo===cod); if(!b) return;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -826,7 +842,7 @@ function downloadBemPDF(cod){
   doc.setFontSize(18);
   doc.text('PATRIMÔNIO MOBILIÁRIO',105,12,{align:'center'});
   doc.setFontSize(10);
-  doc.text('Ficha Individual do Bem',105,19,{align:'center'});
+  doc.text('Ficha Individual do Item',105,19,{align:'center'});
   
   doc.setTextColor(0,0,0);
   doc.setFontSize(14);
@@ -879,14 +895,14 @@ function downloadBemPDF(cod){
   doc.setTextColor(128,128,128);
   doc.text(`Gerado em ${new Date().toLocaleString('pt-BR')} · Patrimônio Mobiliário DMAE`,105,290,{align:'center'});
   
-  doc.save(`bem-${b.codigo}-${b.item.replace(/\s+/g,'-').toLowerCase()}.pdf`);
+  doc.save(`item-${b.codigo}-${b.item.replace(/\s+/g,'-').toLowerCase()}.pdf`);
   toast('Ficha PDF gerada com sucesso.');
 }
 
 /* ═══════════════════════ RELATÓRIO PDF ═══════════════════════ */
 function downloadRelatorioPDF(){
-  const list=filteredBens();
-  if(!list.length){ toast('Nenhum bem para gerar relatório.','err'); return; }
+  const list=filteredItens();
+  if(!list.length){ toast('Nenhum item para gerar relatório.','err'); return; }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF('landscape');
   
@@ -894,9 +910,9 @@ function downloadRelatorioPDF(){
   doc.rect(0,0,297,20,'F');
   doc.setTextColor(255,255,255);
   doc.setFontSize(16);
-  doc.text('PATRIMÔNIO MOBILIÁRIO — Relatório de Bens',148.5,10,{align:'center'});
+  doc.text('PATRIMÔNIO MOBILIÁRIO — Relatório de Itens',148.5,10,{align:'center'});
   doc.setFontSize(9);
-  doc.text(`Gerado em ${new Date().toLocaleString('pt-BR')} · ${list.length} bens`,148.5,16,{align:'center'});
+  doc.text(`Gerado em ${new Date().toLocaleString('pt-BR')} · ${list.length} itens`,148.5,16,{align:'center'});
   
   const headers=[['Código','Item','Marca','Setor','Usuário','Local','Valor','Status']];
   const data=list.map(b=>{
@@ -935,19 +951,19 @@ function downloadRelatorioPDF(){
   const finalY=doc.lastAutoTable.finalY+10;
   doc.setFontSize(8);
   doc.setTextColor(128,128,128);
-  doc.text(`Total de bens: ${list.length} · Valor total: ${money(list.reduce((s,b)=>s+(b.valor||0),0))}`,14,finalY);
+  doc.text(`Total de itens: ${list.length} · Valor total: ${money(list.reduce((s,b)=>s+(b.valor||0),0))}`,14,finalY);
   
-  doc.save(`relatorio-bens-${new Date().toISOString().slice(0,10)}.pdf`);
+  doc.save(`relatorio-itens-${new Date().toISOString().slice(0,10)}.pdf`);
   toast('Relatório PDF gerado com sucesso.');
 }
 
-/* ═══════════════════════ FORMULÁRIOS DE BEM ═══════════════════════ */
-function openBemForm(cod){
+/* ═══════════════════════ FORMULÁRIOS DE ITEM ═══════════════════════ */
+function openItemForm(cod){
   if(!Auth.can('edit')) return;
   const b = cod? DB.data.bens.find(x=>x.codigo===cod) : null;
   openModal(`
-  <div class="modal-h"><h3>${b?'Editar bem '+b.codigo:'Cadastrar novo bem'}</h3><button class="x" onclick="closeModal()">✕</button></div>
-  <form id="formBem"><div class="modal-b form-grid">
+  <div class="modal-h"><h3>${b?'Editar item '+b.codigo:'Cadastrar novo item'}</h3><button class="x" onclick="closeModal()">✕</button></div>
+  <form id="formItem"><div class="modal-b form-grid">
     <label>Código *<input class="input mono" name="codigo" required value="${b?.codigo??''}" ${b?'readonly':''}></label>
     <label>Tipo de item *<input class="input" name="item" list="dlItens" required value="${esc(b?.item||'')}"></label>
     <label>Cor<input class="input" name="cor" value="${esc(b?.cor||'')}"></label>
@@ -963,19 +979,19 @@ function openBemForm(cod){
     <label class="fg-full">Observações<textarea name="obs" style="min-height:52px">${esc(b?.obs||'')}</textarea></label>
   </div>
   <div class="modal-f"><button type="button" class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Salvar</button></div></form>`);
-  $('#formBem').addEventListener('submit', ev=>{
+  $('#formItem').addEventListener('submit', ev=>{
     ev.preventDefault();
     const f=new FormData(ev.target);
     const codigo=parseInt(f.get('codigo'),10);
     if(!codigo){ toast('Código inválido.','err'); return; }
-    if(!b && DB.data.bens.some(x=>x.codigo===codigo)){ toast('Já existe um bem com este código.','err'); return; }
+    if(!b && DB.data.bens.some(x=>x.codigo===codigo)){ toast('Já existe um item com este código.','err'); return; }
     const rec={ codigo, item:f.get('item').trim(), cor:f.get('cor').trim(), marca:f.get('marca').trim(),
       detalhes:f.get('detalhes').trim(), data:f.get('data'), valor:parseBR(f.get('valor')),
       responsavel:f.get('responsavel').trim(), encontrado:f.get('encontrado')===''?null:f.get('encontrado')==='true',
       setor:f.get('setor').trim(), usuario:f.get('usuario').trim(), local:f.get('local').trim(), obs:f.get('obs').trim() };
-    if(b){ Object.assign(b,rec); logHist('edicao',`Bem ${codigo} (${rec.item}) teve seus dados atualizados.`,codigo); toast('Bem atualizado com sucesso.'); }
-    else { DB.data.bens.push(rec); logHist('cadastro',`Novo bem cadastrado: ${codigo} — ${rec.item}${rec.setor?' ('+rec.setor+')':''}.`,codigo); toast('Bem cadastrado com sucesso.'); }
-    DB.save(); Cloud.upsertBens([rec]); closeModal(); refreshFilters(); renderBens(); renderDashboard();
+    if(b){ Object.assign(b,rec); logHist('edicao',`Item ${codigo} (${rec.item}) teve seus dados atualizados.`,codigo); toast('Item atualizado com sucesso.'); }
+    else { DB.data.bens.push(rec); logHist('cadastro',`Novo item cadastrado: ${codigo} — ${rec.item}${rec.setor?' ('+rec.setor+')':''}.`,codigo); toast('Item cadastrado com sucesso.'); }
+    DB.save(); Cloud.upsertBens([rec]); closeModal(); refreshFilters(); renderItens(); renderDashboard();
   });
 }
 
@@ -983,7 +999,7 @@ function openMoveForm(cod){
   if(!Auth.can('edit')) return;
   const b=DB.data.bens.find(x=>x.codigo===cod); if(!b) return;
   openModal(`
-  <div class="modal-h"><h3>Movimentar bem ${b.codigo}</h3><button class="x" onclick="closeModal()">✕</button></div>
+  <div class="modal-h"><h3>Movimentar item ${b.codigo}</h3><button class="x" onclick="closeModal()">✕</button></div>
   <form id="formMove"><div class="modal-b form-grid">
     <label>Novo setor / núcleo<input class="input" name="setor" list="dlSetores" value="${esc(b.setor||'')}"></label>
     <label>Quem está utilizando<input class="input" name="usuario" list="dlPessoas" value="${esc(b.usuario||'')}"></label>
@@ -1000,8 +1016,8 @@ function openMoveForm(cod){
     b.setor=f.get('setor').trim(); b.usuario=f.get('usuario').trim(); b.local=f.get('local').trim();
     b.encontrado=f.get('encontrado')===''?null:f.get('encontrado')==='true'; b.responsavel=f.get('responsavel').trim();
     const obsMov=f.get('obsMov').trim(); if(obsMov) b.obs=(b.obs?b.obs+'\n':'')+`[${fmtDate(new Date().toISOString())}] ${obsMov}`;
-    logHist('movimentacao',`Bem ${b.codigo} (${b.item}): ${de} → ${b.setor||'—'} / ${b.usuario||'—'}.${obsMov?' Obs.: '+obsMov:''}`,b.codigo);
-    DB.save(); Cloud.upsertBens([b]); closeModal(); renderBens(); refreshFilters(); toast('Movimentação registrada.'); openDrawer(b.codigo);
+    logHist('movimentacao',`Item ${b.codigo} (${b.item}): ${de} → ${b.setor||'—'} / ${b.usuario||'—'}.${obsMov?' Obs.: '+obsMov:''}`,b.codigo);
+    DB.save(); Cloud.upsertBens([b]); closeModal(); renderItens(); refreshFilters(); toast('Movimentação registrada.'); openDrawer(b.codigo);
   });
 }
 
@@ -1009,8 +1025,8 @@ function openDelete(cod){
   if(!Auth.can('delete')) return;
   const b=DB.data.bens.find(x=>x.codigo===cod); if(!b) return;
   openModal(`
-  <div class="modal-h"><h3>Excluir bem</h3><button class="x" onclick="closeModal()">✕</button></div>
-  <div class="modal-b"><p style="font-size:14px;line-height:1.6">Confirma a exclusão definitiva do bem <b class="mono">${b.codigo} — ${esc(b.item)}</b>${b.setor?` (${esc(b.setor)})`:''}?<br><span class="muted" style="font-size:12.5px">Esta ação não pode ser desfeita.</span></p></div>
+  <div class="modal-h"><h3>Excluir item</h3><button class="x" onclick="closeModal()">✕</button></div>
+  <div class="modal-b"><p style="font-size:14px;line-height:1.6">Confirma a exclusão definitiva do item <b class="mono">${b.codigo} — ${esc(b.item)}</b>${b.setor?` (${esc(b.setor)})`:''}?<br><span class="muted" style="font-size:12.5px">Esta ação não pode ser desfeita.</span></p></div>
   <div class="modal-f"><button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn danger" id="btnConfirmDel">Excluir definitivamente</button></div>`);
   $('#btnConfirmDel').onclick=async()=>{
     DB.data.bens=DB.data.bens.filter(x=>x.codigo!==cod);
@@ -1018,7 +1034,7 @@ function openDelete(cod){
     closeModal();
     closeDrawer();
     refreshFilters();
-    renderBens();
+    renderItens();
     renderDashboard();
     
     if(Cloud.on){
@@ -1027,7 +1043,7 @@ function openDelete(cod){
         DB.data.bens.push(b);
         DB.save();
         refreshFilters();
-        renderBens();
+        renderItens();
         renderDashboard();
         toast('Erro ao excluir no banco: '+error.message, 'err');
         console.error('Erro na exclusão:', error);
@@ -1035,8 +1051,8 @@ function openDelete(cod){
       }
     }
     
-    logHist('exclusao',`Bem ${cod} (${b.item}) foi excluído do acervo.`,cod);
-    toast('Bem excluído com sucesso.','warn');
+    logHist('exclusao',`Item ${cod} (${b.item}) foi excluído do acervo.`,cod);
+    toast('Item excluído com sucesso.','warn');
   };
 }
 
@@ -1111,7 +1127,7 @@ function applyImport(){
   DB.save();
   logHist('importacao',`Importação aplicada (${strategy==='replace'?'substituição':'atualização'}): ${novos} novo(s), ${atualizados} atualizado(s).`);
   importRows=[]; $('#impSummary').classList.remove('on'); $('#dropzone').style.display='';
-  refreshFilters(); renderBens(); renderDashboard();
+  refreshFilters(); renderItens(); renderDashboard();
   toast(`Importação concluída: ${novos} novo(s), ${atualizados} atualizado(s).`);
 }
 
@@ -1196,23 +1212,23 @@ function initEvents(){
     const t=k.dataset.kpi;
     if(t==='setores'){ openSetoresModal(); return; }
     grid.text=''; grid.item=''; grid.resp='';
-    if(t==='bens'){ grid.setor=''; grid.status=''; grid.sort='codigo'; grid.dir=1; }
+    if(t==='itens'){ grid.setor=''; grid.status=''; grid.sort='codigo'; grid.dir=1; }
     if(t==='valor'){ grid.setor=''; grid.status=''; grid.sort='valor'; grid.dir=-1; }
     if(t==='pend'){ grid.setor=''; grid.status='pend'; }
-    syncFilterInputs(); goto('bens');
+    syncFilterInputs(); goto('itens');
   }));
   $('#btnRelatorioPDF').onclick=downloadRelatorioPDF;
-  $('#globalSearch').addEventListener('input',e=>{ grid.text=e.target.value; grid.page=1; goto('bens'); });
-  $('#fText').addEventListener('input',e=>{ grid.text=e.target.value; grid.page=1; renderBens(); });
-  $('#fSetor').onchange=e=>{ grid.setor=e.target.value; grid.page=1; renderBens(); };
-  $('#fItem').onchange=e=>{ grid.item=e.target.value; grid.page=1; renderBens(); };
-  $('#fResp').onchange=e=>{ grid.resp=e.target.value; grid.page=1; renderBens(); };
-  $('#fStatus').onchange=e=>{ grid.status=e.target.value; grid.page=1; renderBens(); };
-  $('#btnClear').onclick=()=>{ grid.text=grid.setor=grid.item=grid.resp=grid.status=''; grid.page=1; grid.sort='codigo'; grid.dir=1; $('#globalSearch').value=''; syncFilterInputs(); renderBens(); };
-  $('#pgPrev').onclick=()=>{ grid.page--; renderBens(); };
-  $('#pgNext').onclick=()=>{ grid.page++; renderBens(); };
-  $$('thead th[data-sort]').forEach(th=>th.onclick=()=>{ const s=th.dataset.sort; if(grid.sort===s) grid.dir*=-1; else {grid.sort=s;grid.dir=1;} renderBens(); });
-  $('#btnNovo').onclick=()=>openBemForm(null);
+  $('#globalSearch').addEventListener('input',e=>{ grid.text=e.target.value; grid.page=1; goto('itens'); });
+  $('#fText').addEventListener('input',e=>{ grid.text=e.target.value; grid.page=1; renderItens(); });
+  $('#fSetor').onchange=e=>{ grid.setor=e.target.value; grid.page=1; renderItens(); };
+  $('#fItem').onchange=e=>{ grid.item=e.target.value; grid.page=1; renderItens(); };
+  $('#fResp').onchange=e=>{ grid.resp=e.target.value; grid.page=1; renderItens(); };
+  $('#fStatus').onchange=e=>{ grid.status=e.target.value; grid.page=1; renderItens(); };
+  $('#btnClear').onclick=()=>{ grid.text=grid.setor=grid.item=grid.resp=grid.status=''; grid.page=1; grid.sort='codigo'; grid.dir=1; $('#globalSearch').value=''; syncFilterInputs(); renderItens(); };
+  $('#pgPrev').onclick=()=>{ grid.page--; renderItens(); };
+  $('#pgNext').onclick=()=>{ grid.page++; renderItens(); };
+  $$('thead th[data-sort]').forEach(th=>th.onclick=()=>{ const s=th.dataset.sort; if(grid.sort===s) grid.dir*=-1; else {grid.sort=s;grid.dir=1;} renderItens(); });
+  $('#btnNovo').onclick=()=>openItemForm(null);
   $('#dClose').onclick=closeDrawer;
   $('#backdrop').onclick=()=>{ closeDrawer(); closeModal(); };
   $('#modalWrap').addEventListener('click',e=>{ if(e.target.id==='modalWrap') closeModal(); });
@@ -1275,9 +1291,9 @@ DB.init(); Cloud.init();
     Auth.init(); initEvents();
     if(Auth.user) enterApp();
     const params=new URLSearchParams(window.location.search);
-    const bemCod=params.get('bem');
-    if(bemCod && Auth.user){
-      setTimeout(()=>openDrawer(parseInt(bemCod,10)),500);
+    const itemCod=params.get('item');
+    if(itemCod && Auth.user){
+      setTimeout(()=>openDrawer(parseInt(itemCod,10)),500);
     }
   })();
 })();

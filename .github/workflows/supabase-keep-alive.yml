@@ -2,22 +2,19 @@ name: Supabase Keep Alive
 
 on:
   schedule:
-    # Roda todo dia às 8h da manhã (horário UTC = 5h no Brasil)
     - cron: '0 8 * * *'
-  workflow_dispatch:  # Permite rodar manualmente também
+  workflow_dispatch:
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Supabase
-        run: |
-          curl -X POST "${{ secrets.SUPABASE_URL }}/rest/v1/bens" \
-            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Content-Type: application/json" \
-            -d '{"select":"codigo","limit":"1"}' \
-            --fail-with-body
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          curl -sS -f "${SUPABASE_URL}/rest/v1/bens?select=codigo&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}"
+          echo "Supabase acordado com sucesso!"
